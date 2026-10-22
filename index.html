@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Levi Sterling</title>
+<meta name="description" content="Levi Sterling, Senior Academic Technology Service Director at SMU Guildhall.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Pixelify+Sans:wght@500&display=swap">
+<style>
+/* Layout: a night (or dawn) forest hero drawn on canvas, then a single column
+   that walks down through the work: current quest, save points, skill tree, contact. */
+:root{
+  --bg:#f1f4e6; --surface:#fbfcf5; --fg:#142410; --muted:#4a5e36; --line:#cbd6b2;
+  --accent:#3c6a12; --spark:#a65c00;
+  --sky-top:#f7e6c4; --sky-bot:#e2ebc6; --tree-far:#b3c693; --tree-near:#1d3311; --glow:#f0a83a;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  --hud:"Pixelify Sans",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1509; --surface:#142012; --fg:#e6f0d4; --muted:#a3b78a; --line:#2a3a20;
+  --accent:#a6d65a; --spark:#f3b54f;
+  --sky-top:#060d14; --sky-bot:#13261a; --tree-far:#2c4730; --tree-near:#060b05; --glow:#ffd07a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1509; --surface:#142012; --fg:#e6f0d4; --muted:#a3b78a; --line:#2a3a20;
+  --accent:#a6d65a; --spark:#f3b54f;
+  --sky-top:#060d14; --sky-bot:#13261a; --tree-far:#2c4730; --tree-near:#060b05; --glow:#ffd07a;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 1.0625rem/1.65 var(--body);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:.2em}
+:focus-visible{outline:3px solid var(--spark);outline-offset:3px;border-radius:4px}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.col{max-width:46rem;margin:0 auto}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;background:var(--sky-bot)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-inner{position:relative;padding-block:clamp(3rem,9vw,6rem) clamp(15rem,34vw,21rem)}
+.hud{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;margin:0 0 1.2rem;padding:0;list-style:none;font:500 .8rem/1.2 var(--hud);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hud b{color:var(--fg);font-weight:500}
+h1{font:800 clamp(3.4rem,13vw,8.5rem)/.86 var(--display);font-variation-settings:"opsz" 96;letter-spacing:-.045em;margin:0;text-wrap:balance}
+h1 span{display:block;color:var(--accent)}
+.lede{max-width:33rem;margin:1.4rem 0 0;font-size:clamp(1.1rem,2.4vw,1.3rem);line-height:1.5}
+
+/* Sections */
+main{padding-block:1rem 4rem}
+section{margin-top:clamp(3rem,8vw,5rem)}
+.eyebrow{font:500 .8rem/1 var(--hud);letter-spacing:.1em;text-transform:uppercase;color:var(--spark);margin:0 0 .7rem}
+h2{font:800 clamp(1.8rem,5vw,2.6rem)/1.05 var(--display);letter-spacing:-.03em;margin:0 0 1rem;text-wrap:balance}
+p{margin:0}
+.muted{color:var(--muted)}
+
+.quest{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:clamp(1.25rem,4vw,2rem);display:grid;gap:1rem;
+  box-shadow:6px 6px 0 var(--line)}
+.quest h3{font:800 1.45rem/1.2 var(--display);margin:0;letter-spacing:-.02em}
+.objectives{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.objectives li{display:grid;grid-template-columns:1.2rem 1fr;gap:.6rem;align-items:baseline}
+.objectives li::before{content:"";width:.7rem;height:.7rem;border:2px solid var(--accent);transform:translateY(.05rem)}
+
+/* Save points: a real sequence, so it gets an ordered track */
+.track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;position:relative}
+.track::before{content:"";position:absolute;left:0;right:0;top:1.35rem;border-top:3px dotted var(--line)}
+.track li{position:relative;display:grid;gap:.4rem;min-width:0;align-content:start}
+.fire{width:2.7rem;height:2.7rem;background:var(--bg);image-rendering:pixelated}
+.fire .a{fill:var(--spark)} .fire .b{fill:var(--glow)} .fire .c{fill:var(--muted)}
+.year{font:800 1.6rem/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.track li.now .year{color:var(--accent)}
+
+/* Skill tree */
+.tree{display:grid;justify-items:center;gap:0}
+.node{border:2px solid var(--fg);background:var(--surface);padding:.7rem .9rem;border-radius:4px;min-width:0}
+.node strong{display:block;font:800 1.05rem/1.25 var(--display)}
+.node span{display:block;font-size:.95rem;color:var(--muted);line-height:1.45;margin-top:.2rem}
+.root{background:var(--fg);color:var(--bg);text-align:center}
+.root strong{font-size:1.2rem}
+.stem{width:3px;height:1.6rem;background:var(--fg)}
+.branches{list-style:none;margin:0;padding:0;width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem;position:relative}
+.branches li{position:relative;display:grid;padding-top:1.6rem}
+.branches li::before{content:"";position:absolute;top:0;left:50%;width:3px;height:1.6rem;background:var(--fg);transform:translateX(-50%)}
+.branches::before{content:"";position:absolute;top:0;left:12.5%;right:12.5%;height:3px;background:var(--fg)}
+.node.unlocked{border-color:var(--accent);box-shadow:4px 4px 0 var(--accent)}
+
+/* Contact */
+.links{list-style:none;margin:0;padding:0;border-top:2px solid var(--fg)}
+.links li{border-bottom:1px solid var(--line)}
+.links a,.links .row{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:1rem .2rem;text-decoration:none;color:var(--fg);flex-wrap:wrap}
+.links a strong,.links .row strong{font:800 clamp(1.3rem,4vw,1.8rem)/1.1 var(--display);letter-spacing:-.02em}
+.links small{font:500 .8rem/1 var(--hud);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.links a:hover strong{color:var(--accent)}
+.links a:hover small::after{content:" \2192"}
+.copy{font:500 .8rem/1 var(--hud);letter-spacing:.08em;text-transform:uppercase;background:none;color:var(--accent);border:2px solid var(--accent);border-radius:4px;padding:.5rem .7rem;cursor:pointer}
+.copy:hover{background:var(--accent);color:var(--bg)}
+.addr{user-select:all}
+
+footer{padding-block:2rem 3rem;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+footer .col{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 1.5rem}
+kbd{font:500 .8rem var(--hud);border:1px solid var(--line);border-radius:3px;padding:0 .3rem}
+
+.toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,150%);transition:transform .35s cubic-bezier(.2,1.4,.4,1),visibility .35s;
+  background:var(--fg);color:var(--bg);padding:.8rem 1.1rem;border-radius:4px;font:500 .9rem/1.3 var(--hud);letter-spacing:.05em;display:flex;gap:.8rem;align-items:center;z-index:20;max-width:calc(100% - 32px);visibility:hidden}
+.toast.show{transform:translate(-50%,0);visibility:visible}
+.toast i{font-style:normal;color:var(--spark);font-size:1.3rem}
+
+@media (max-width:40rem){
+  .track{grid-template-columns:1fr;gap:1.5rem;padding-left:0}
+  .track::before{left:1.35rem;right:auto;top:0;bottom:0;border-top:0;border-left:3px dotted var(--line)}
+  .track li{grid-template-columns:2.7rem 1fr;column-gap:1rem}
+  .track li .fire{grid-row:span 2}
+  .track li p{grid-column:2}
+  .branches{grid-template-columns:1fr;gap:.8rem;padding-left:1.6rem}
+  .branches::before{left:0;right:auto;top:0;bottom:2rem;width:3px;height:auto}
+  .branches li{padding-top:0}
+  .branches li::before{top:1.5rem;left:-1.6rem;width:1.6rem;height:3px;transform:none}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="forest" aria-hidden="true"></canvas>
+  <div class="hero-inner gutter">
+    <div class="col">
+      <ul class="hud" aria-label="Character sheet">
+        <li>Class <b>Academic Technologist</b></li>
+        <li>Base <b>SMU Guildhall, Dallas</b></li>
+        <li>XP <b><span id="xp">12</span> yrs in game dev ed</b></li>
+      </ul>
+      <h1>Levi <span>Sterling</span></h1>
+      <p class="lede">I run the technology SMU Guildhall teaches, researches and builds games on. I've worked in game development education since 2014.</p>
+    </div>
+  </div>
+</header>
+
+<main class="gutter">
+  <div class="col">
+
+    <section aria-labelledby="quest-h">
+      <p class="eyebrow">Current quest</p>
+      <h2 id="quest-h">Keep a game school's tools ready for the next build</h2>
+      <article class="quest">
+        <h3>Senior Academic Technology Service Director</h3>
+        <p class="muted">SMU Guildhall, the graduate video game development program at Southern Methodist University.</p>
+        <ul class="objectives">
+          <li>Primary contact and project manager for Guildhall's strategic technology needs</li>
+          <li>Technology for instruction, research and learning across the program</li>
+          <li>Keeping faculty and student teams working, from the first prototype to the final build</li>
+        </ul>
+      </article>
+    </section>
+
+    <section aria-labelledby="path-h">
+      <p class="eyebrow">Save points</p>
+      <h2 id="path-h">The route so far</h2>
+      <ol class="track">
+        <li>
+          <svg class="fire" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect class="b" x="3" y="1" width="1" height="1"/><rect class="a" x="3" y="2" width="2" height="1"/><rect class="a" x="2" y="3" width="3" height="1"/><rect class="b" x="4" y="3" width="1" height="1"/><rect class="a" x="2" y="4" width="4" height="1"/><rect class="b" x="3" y="4" width="2" height="1"/><rect class="c" x="1" y="5" width="6" height="1"/><rect class="c" x="2" y="6" width="1" height="1"/><rect class="c" x="5" y="6" width="1" height="1"/></svg>
+          <span class="year">2014</span>
+          <p class="muted">Starts in game development education, including teaching at Lewisville ISD's Career Center East.</p>
+        </li>
+        <li>
+          <svg class="fire" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect class="b" x="3" y="1" width="1" height="1"/><rect class="a" x="3" y="2" width="2" height="1"/><rect class="a" x="2" y="3" width="3" height="1"/><rect class="b" x="4" y="3" width="1" height="1"/><rect class="a" x="2" y="4" width="4" height="1"/><rect class="b" x="3" y="4" width="2" height="1"/><rect class="c" x="1" y="5" width="6" height="1"/><rect class="c" x="2" y="6" width="1" height="1"/><rect class="c" x="5" y="6" width="1" height="1"/></svg>
+          <span class="year">2018</span>
+          <p class="muted">Joins SMU Guildhall.</p>
+        </li>
+        <li class="now">
+          <svg class="fire" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect class="b" x="3" y="0" width="1" height="1"/><rect class="b" x="3" y="1" width="2" height="1"/><rect class="a" x="2" y="2" width="3" height="1"/><rect class="a" x="2" y="3" width="4" height="1"/><rect class="b" x="3" y="3" width="1" height="1"/><rect class="a" x="1" y="4" width="5" height="1"/><rect class="b" x="3" y="4" width="2" height="1"/><rect class="c" x="1" y="5" width="6" height="1"/><rect class="c" x="2" y="6" width="1" height="1"/><rect class="c" x="5" y="6" width="1" height="1"/></svg>
+          <span class="year">Now</span>
+          <p class="muted">Senior Academic Technology Service Director.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="tree-h">
+      <p class="eyebrow">Skill tree</p>
+      <h2 id="tree-h">What the job covers</h2>
+      <div class="tree">
+        <div class="node root"><strong>Academic Technology</strong></div>
+        <div class="stem" aria-hidden="true"></div>
+        <ul class="branches">
+          <li><div class="node unlocked"><strong>Teaching tech</strong><span>Classroom, lab and online tools for instruction</span></div></li>
+          <li><div class="node unlocked"><strong>Game production</strong><span>The hardware, engines and tools student teams build on</span></div></li>
+          <li><div class="node unlocked"><strong>Research support</strong><span>Technology for faculty and student research</span></div></li>
+          <li><div class="node unlocked"><strong>Strategy</strong><span>Planning and project management for what comes next</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section aria-labelledby="find-h">
+      <p class="eyebrow">Multiplayer</p>
+      <h2 id="find-h">Find me</h2>
+      <ul class="links">
+        <li><div class="row"><strong class="addr" id="email">levi@smu.edu</strong><button class="copy" id="copy-email" type="button">Copy email</button></div></li>
+        <li><a href="https://www.smu.edu/guildhall/about/staff/levi-sterling" rel="me noopener"><strong>Guildhall profile</strong><small>smu.edu</small></a></li>
+        <li><a href="https://github.com/SMUGSterling" rel="me noopener"><strong>GitHub</strong><small>@SMUGSterling</small></a></li>
+        <li><a href="https://www.smu.edu/guildhall" rel="noopener"><strong>SMU Guildhall</strong><small>The program</small></a></li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer class="gutter">
+  <div class="col">
+    <span>levi.got-a.page. Views here are my own.</span>
+    <span>Tap the forest for fireflies. Players know the code: <kbd>↑↑↓↓←→←→BA</kbd></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><i aria-hidden="true">★</i><span id="toast-text"></span></div>
+
+<script>
+(() => {
+  document.getElementById("xp").textContent = new Date().getFullYear() - 2014;
+
+  const toast = document.getElementById("toast"), toastText = document.getElementById("toast-text");
+  let toastTimer;
+  function say(msg){ toastText.textContent = msg; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2600); }
+
+  const btn = document.getElementById("copy-email"), email = document.getElementById("email");
+  btn.addEventListener("click", () => {
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); say("Selected. Copy it from here."); };
+    try { navigator.clipboard.writeText(email.textContent).then(() => say("Email copied"), fallback); } catch { fallback(); }
+  });
+
+  // Forest
+  const canvas = document.getElementById("forest"), ctx = canvas.getContext("2d"), inner = canvas.nextElementSibling;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  let W = 0, H = 0, dpr = 1, colors = {}, layers = [], flies = [];
+  let px = 0.5, tx = 0.5, scrollY = 0, running = false, visible = true;
+
+  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hex(c){ c = c.trim().replace("#",""); return [0,2,4].map(i => parseInt(c.slice(i,i+2),16)); }
+  function mix(a,b,t){ return "rgb(" + a.map((v,i) => Math.round(v + (b[i]-v)*t)).join(",") + ")"; }
+  function readColors(){
+    const s = getComputedStyle(document.documentElement), g = n => s.getPropertyValue(n).trim();
+    colors = { skyTop:g("--sky-top"), skyBot:g("--sky-bot"), far:hex(g("--tree-far")), near:hex(g("--tree-near")), glow:g("--glow"), bg:g("--bg") };
+  }
+
+  function build(){
+    const r = rng(2018), count = 5;
+    layers = [];
+    for (let i = 0; i < count; i++){
+      const t = i / (count - 1), trees = [];
+      const band = parseFloat(getComputedStyle(inner).paddingBottom) - 16;
+      const base = H - band * 0.45 * (1 - t) - 4;
+      const maxH = band * (0.4 + t * 0.52);
+      const step = 18 + t * 46;
+      for (let x = -80; x < W + 80; x += step * (0.6 + r() * 0.8)){
+        trees.push({ x, h: maxH * (0.55 + r() * 0.45), w: (0.34 + r() * 0.12) });
+      }
+      layers.push({ t, base, trees, depth: 0.15 + t * 0.85, color: mix(colors.far, colors.near, Math.pow(t, 0.8)) });
+    }
+    flies = Array.from({ length: Math.round(Math.min(46, W / 22)) }, () => spawn(r() * W, H - r() * (parseFloat(getComputedStyle(inner).paddingBottom) - 16), r));
+  }
+  function spawn(x, y, r = Math.random){ return { x, y, ox:x, oy:y, a: r() * 6.28, s: 0.3 + r() * 0.9, ph: r() * 6.28, life: Infinity }; }
+
+  function pine(x, base, h, wr){
+    const w = h * wr;
+    ctx.fillRect(x - w * 0.05, base - h * 0.14, w * 0.1, h * 0.16);
+    for (let k = 0; k < 3; k++){
+      const top = base - h + k * h * 0.22, bot = base - h * 0.12 - (2 - k) * h * 0.2, ww = w * (0.55 + k * 0.25);
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + ww / 2, bot); ctx.lineTo(x - ww / 2, bot); ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function draw(time){
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, colors.skyTop); sky.addColorStop(1, colors.skyBot);
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+
+    // moon or low sun, depending on theme
+    const mx = W * 0.8 + (px - 0.5) * -12, my = Math.min(H * 0.28, 150) + scrollY * 0.15, mr = Math.min(W, 900) * 0.07;
+    const halo = ctx.createRadialGradient(mx, my, mr * 0.4, mx, my, mr * 4);
+    halo.addColorStop(0, colors.glow + "55"); halo.addColorStop(1, colors.glow + "00");
+    ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = colors.glow; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 6.29); ctx.fill();
+
+    for (const L of layers){
+      const off = (px - 0.5) * -60 * L.depth;
+      const lift = scrollY * (0.35 - L.depth * 0.3);
+      ctx.fillStyle = L.color;
+      for (const tr of L.trees) pine(tr.x + off, L.base + lift, tr.h, tr.w);
+      ctx.fillRect(0, L.base + lift - 1, W, H);
+    }
+
+    // fireflies
+    for (let i = flies.length - 1; i >= 0; i--){
+      const f = flies[i];
+      if (time){ f.a += (Math.sin(time * 0.0004 + f.ph) * 0.05); f.x += Math.cos(f.a) * f.s * 0.35; f.y += Math.sin(f.a) * f.s * 0.25;
+        if (Math.hypot(f.x - f.ox, f.y - f.oy) > 60) f.a += Math.PI * 0.6;
+        if (f.life !== Infinity && (f.life -= 1) <= 0){ flies.splice(i, 1); continue; } }
+      const blink = 0.35 + 0.65 * Math.max(0, Math.sin((time || 0) * 0.002 * f.s + f.ph));
+      const fx = f.x + (px - 0.5) * -40, fy = f.y;
+      const g = ctx.createRadialGradient(fx, fy, 0, fx, fy, 9);
+      g.addColorStop(0, colors.glow); g.addColorStop(1, colors.glow + "00");
+      ctx.globalAlpha = blink * (f.life === Infinity ? 1 : Math.min(1, f.life / 60));
+      ctx.fillStyle = g; ctx.fillRect(fx - 9, fy - 9, 18, 18);
+      ctx.globalAlpha = 1;
+    }
+
+    // mist into the page
+    const mist = ctx.createLinearGradient(0, H - 70, 0, H);
+    mist.addColorStop(0, colors.bg + "00"); mist.addColorStop(1, colors.bg);
+    ctx.fillStyle = mist; ctx.fillRect(0, H - 70, W, 70);
+  }
+
+  function frame(time){
+    px += (tx - px) * 0.06;
+    draw(time);
+    if (running) requestAnimationFrame(frame);
+  }
+  function start(){ if (!running && visible && !reduce.matches){ running = true; requestAnimationFrame(frame); } }
+  function stop(){ running = false; }
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    readColors(); build(); draw(0);
+  }
+
+  new ResizeObserver(resize).observe(canvas);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }).observe(canvas);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); build(); draw(0); });
+  new MutationObserver(() => { readColors(); build(); draw(0); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  reduce.addEventListener("change", () => reduce.matches ? (stop(), draw(0)) : start());
+  addEventListener("pointermove", e => { tx = e.clientX / innerWidth; }, { passive: true });
+  addEventListener("scroll", () => { scrollY = Math.min(window.scrollY, H); if (!running) draw(0); }, { passive: true });
+
+  function burst(x, y, n){
+    for (let i = 0; i < n; i++){ const f = spawn(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40); f.s = 1 + Math.random() * 2; f.life = 240 + Math.random() * 200; flies.push(f); }
+    if (!running) draw(0);
+  }
+  canvas.parentElement.addEventListener("click", e => {
+    if (e.target.closest("a,button")) return;
+    const r = canvas.getBoundingClientRect();
+    burst(e.clientX - r.left + (px - 0.5) * 40, e.clientY - r.top, 10);
+  });
+
+  const code = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+  let pos = 0;
+  addEventListener("keydown", e => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    pos = k === code[pos] ? pos + 1 : (k === code[0] ? 1 : 0);
+    if (pos === code.length){ pos = 0; burst(W / 2, H * 0.6, 120); say("Achievement unlocked: 30 lives"); }
+  });
+})();
+</script>
+</body>
+</html>
