@@ -220,7 +220,7 @@ kbd{font:500 .8rem var(--hud);border:1px solid var(--line);border-radius:3px;pad
 
   const toast = document.getElementById("toast"), toastText = document.getElementById("toast-text");
   let toastTimer;
-  function say(msg){ toastText.textContent = msg; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2600); }
+  function say(msg){ toastText.textContent = msg; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 4000); }
 
   const btn = document.getElementById("copy-email"), email = document.getElementById("email");
   btn.addEventListener("click", () => {
@@ -334,8 +334,8 @@ kbd{font:500 .8rem var(--hud);border:1px solid var(--line);border-radius:3px;pad
   addEventListener("pointermove", e => { tx = e.clientX / innerWidth; }, { passive: true });
   addEventListener("scroll", () => { scrollY = Math.min(window.scrollY, H); if (!running) draw(0); }, { passive: true });
 
-  function burst(x, y, n){
-    for (let i = 0; i < n; i++){ const f = spawn(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40); f.s = 1 + Math.random() * 2; f.life = 240 + Math.random() * 200; flies.push(f); }
+  function burst(x, y, n, life = 240){
+    for (let i = 0; i < n; i++){ const f = spawn(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40); f.s = 1 + Math.random() * 2; f.life = life + Math.random() * 200; flies.push(f); }
     if (!running) draw(0);
   }
   canvas.parentElement.addEventListener("click", e => {
@@ -349,7 +349,11 @@ kbd{font:500 .8rem var(--hud);border:1px solid var(--line);border-radius:3px;pad
   addEventListener("keydown", e => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     pos = k === code[pos] ? pos + 1 : (k === code[0] ? 1 : 0);
-    if (pos === code.length){ pos = 0; burst(W / 2, H * 0.6, 120); say("Achievement unlocked: 30 lives"); }
+    if (pos === code.length){
+      pos = 0;
+      scrollTo({ top: 0, behavior: reduce.matches ? "auto" : "smooth" });
+      setTimeout(() => { burst(W / 2, H * 0.6, 160, 420); say("Achievement unlocked: 30 lives"); }, reduce.matches ? 0 : 450);
+    }
   });
 })();
 </script>
